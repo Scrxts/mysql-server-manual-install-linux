@@ -1,0 +1,67 @@
+Poradnik instalacyjny dla mysql-server i mysql-workbench na linuxie:
+
+(Konfiguracja została wykonana na Linux Mint 19.3 Tricia)
+
+mysql-server: 
+
+1: Instalacja z poziomu terminala:
+
+    sudo apt install mysql-server
+
+2. (Opcjonalne) Po instalacji uruchom ponownie komputer.
+
+3. Przystąpienie do instalacji/konfiguracji nowego użytkownika:
+
+    sudo mysql_secure_installation
+
+4. Przechodzisz przez kroki konfiguracji nowego użytkownika (zazwyczaj to jest 'root'), przypisujesz mu nowe hasło, potwierdzasz wpisując je ponownie i przechodzisz dalej akceptując kolejne kroki wpisując 'y' na terminalu i wciskając enter. Jeśli w którymś kroku z ustawień nie zgadzasz się na jakieś ustawienie to po prostu jeśli chcesz możesz wpisać 'n' nie akceptując danego ustawienia lub po prostu nie wpisując nic.
+
+5. Teoretycznie nie będziesz mógł w stanie dalej się zalogować do mysql wpisując (mysql -u root -p), odmówi dostępu, dlatego że pomimo że konfiguracja przebiegła pomyślnie, zauważ jedną rzecz, że podczas wpisywania hasła instalator wymaga dla priorytetu np. LOW, długość >= 8 znaków, jeśli tego nie spełnisz prawdopodobnie nie będziesz w stanie mógł się zalogować do root'a w mysql'u.
+
+Log: “ERROR 1698 (28000): Access denied for user 'root'@'localhost'”
+
+Ale można to naprawić.
+
+6. Z poziomu terminala dostań się do mysql'a jako admin/root:
+
+    sudo mysql -u root -p
+
+7. Sprawdź jakie ustawienie ma sam w sobie użytkownik root w kolumnie 'plugin', można to sprawdzić pisząc zapytanie:
+
+    select user,plugin from mysql.user;
+
+8. Prawdopodobnie użytkownik 'root' ma przypisane w kolumnie plugin 'auth_socket' zamiast tak jak reszta 'mysql_native_password', musimy to zmienić aby była możliwość logowania się jako normalny użytkownik bez praw administratora. Co zatem robimy, wpisujemy dwa dla nas ważne zapytania do mysql'a które umożliwią nam zmianę polityki walidacji hasła a zarazem wtedy pozwoli nam to na wpisanie dowolnego dla nas hasła dla root'a, wpisujemy następujące zapytania:
+
+    SET GLOBAL validate_password_policy=LOW;
+
+Lub
+
+    SET GLOBAL validate_password_policy=0;
+
+9. Jeśli wszystko przebiegnie pomyślnie, możemy teraz zmienić hasło dla naszego roota, napisz zatem zapytanie w którym odniesiemy się do bazy danych mysql:
+
+    use mysql;
+
+10. Możesz teraz zmienić hasło dla swojego root'a w mysql wpisując przykładowo:
+
+    ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+
+11. Gdzie 'password' możesz zastąpić jakimkolwiek innym słowem, może zawierać 3 znaki, lub 5 znaków, wybór należy do Ciebie jak długie hasło sobie teraz ustawisz, jeśli wszystko przebiegnie pomyślnie, to właśnie udało Ci się dopiero teraz skonfigurować mysql'a i użytkownika root'a pomyślnie.
+
+    (Jeśli wyświetli Ci się taki błąd:
+
+    "ERROR 1819 (HY000): Your password does not satisfy the current policy requirements"
+
+    To czeka Cię ponowna instalacja mysql-server'a.)
+
+12. Zresetuj serwer mysql'a wpisując:
+
+    sudo systemctl restart mysql
+
+13. Możesz odetchnąć z ulgą.
+
+14. Instalacja mysql workbench jest nieco prostrza, ponieważ potrzebujesz do tego jednej komenty którą musisz wpisać w terminalu: 
+
+    sudo apt instal mysql-workbench
+
+15. I po tym, możesz zacząć pracować w środowisku MySQL w pełnym spokoju w opensourcowym systemie operacyjnym Linux.

@@ -1,0 +1,67 @@
+Installation guide for mysql-sever and mysql-workbench on linux:
+
+(Configuration has been made on Linux Mint 19.3 Tricia)
+
+mysql-server:
+
+1. Install from the terminal level:
+
+    sudo apt install mysql-server
+
+2. (Optional) Reboot your computer after install.
+
+3. Starting the installation/configuration of a new user:
+
+    sudo mysql_secure_installation
+
+4. You go through the steps of configuring a new user (usually it is 'root'), assign a new password to him, confirm it by entering it again and continue by accepting the next steps by entering 'y' on the terminal and pressing enter. If at any step in the settings you do not agree to a setting, simply if you want you can enter 'n' without accepting the setting or simply without entering anything.
+
+5. Theoretically, you will not be able to log in to mysql by typing (mysql -u root -p), will deny access, because although the configuration was successful, note one thing that when entering the password, the installer requires, the priority for example, LOW, length >= 8 characters, if you fail to do this you probably won't be able to login to root in mysql.
+
+Log: “ERROR 1698 (28000): Access denied for user 'root'@'localhost'”
+
+But you can fix it.
+
+6. From the terminal, get into mysql as admin/root:
+
+    sudo mysql -u root -p
+
+7. Check what setting the root user itself has in the 'plugin' column, you can check it by writing a query:
+
+    select user,plugin from mysql.user;
+
+8. Probably the user 'root' has been assigned in the plugin column 'auth_socket' instead like the rest 'mysql_native_password', we need to change this in order to be able to log in as a normal user without administrative rights. So what we do, enter two important queries for us to mysql that will allow us to change the password validation policy and at the same time then it will allow us to enter any root password for us, we type the following queries:
+
+    SET GLOBAL validate_password_policy=LOW;
+
+Or
+
+    SET GLOBAL validate_password_policy=0;
+
+9. If everything goes well, we can now change the password for our root, so write a query in which we will refer to the mysql database:
+
+    use mysql;
+
+10. You can now change the password for your root in mysql by entering, for example:
+
+    ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+
+11. Where 'password' can be replaced by any other word, it can contain 3 or 5 characters, the choice is yours how long the password will be set now, if everything goes well, you configured mysql and user root successfully.
+
+    (If you see this error:
+    
+    "ERROR 1819 (HY000): Your password does not satisfy the current policy requirements"
+    
+    You are about to reinstall mysql-server.)
+
+12. Reset the mysql server by typing:
+
+    sudo systemctl restart mysql
+    
+13. You can breathe a sigh of relief.
+
+14. The installation of the mysql workbench is a bit simpler because you need one command to do so in the terminal:
+
+    sudo apt instal mysql-workbench
+
+15. And after that, you can start working in a MySQL environment in complete peace of mind on the open source Linux operating system.
